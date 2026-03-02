@@ -55,7 +55,7 @@ export default function App() {
             facets={project.facets}
             maxScore={project.maxScore}
             themeId={project.themeId}
-            size={460}
+            size={530}
           />
         )}
       </div>
@@ -169,7 +169,8 @@ export default function App() {
               </button>
               <button
                 onClick={handleSaveSnapshot}
-                className="text-sm font-semibold bg-[#e8460a] hover:bg-[#d03d08] text-white px-5 py-2 rounded-xl transition-colors"
+                className="text-sm font-semibold text-white px-5 py-2 rounded-xl transition-all hover:brightness-95 active:brightness-90"
+                style={{ background: theme.fill }}
               >
                 Save
               </button>
