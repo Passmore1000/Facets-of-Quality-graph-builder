@@ -12,51 +12,63 @@
   }
 }
 
-/* Custom range slider — uses CSS variables set on the root by App.tsx */
-input[type="range"] {
+/* Facet slider styling with filled progress track */
+.facet-slider {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 3px;
+  height: 6px;
   border-radius: 9999px;
-  background: var(--theme-track, #ddd);
+  background: linear-gradient(
+    to right,
+    var(--theme-fill, #3bb5f0) 0%,
+    var(--theme-fill, #3bb5f0) var(--slider-percent, 0%),
+    #e8e8e8 var(--slider-percent, 0%),
+    #e8e8e8 100%
+  );
   border: none;
   outline: none;
   cursor: pointer;
 }
 
-input[type="range"]::-webkit-slider-runnable-track {
-  height: 3px;
+.facet-slider::-webkit-slider-runnable-track {
+  height: 6px;
   border-radius: 9999px;
-  background: var(--theme-track, #ddd);
+  background: transparent;
   border: none;
 }
 
-input[type="range"]::-webkit-slider-thumb {
+.facet-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 13px;
-  height: 13px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: var(--theme-fill, #3bb5f0);
-  border: 2px solid white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+  background: #ffffff;
+  border: 1px solid #ececec;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
   cursor: pointer;
-  margin-top: -5px;
+  margin-top: -6px;
 }
 
-input[type="range"]::-moz-range-track {
-  height: 3px;
+.facet-slider::-moz-range-track {
+  height: 6px;
   border-radius: 9999px;
-  background: var(--theme-track, #ddd);
+  background: #e8e8e8;
   border: none;
 }
 
-input[type="range"]::-moz-range-thumb {
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
+.facet-slider::-moz-range-progress {
+  height: 6px;
+  border-radius: 9999px;
   background: var(--theme-fill, #3bb5f0);
-  border: 2px solid white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+
+.facet-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #ececec;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
   cursor: pointer;
 }

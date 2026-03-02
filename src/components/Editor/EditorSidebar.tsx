@@ -61,7 +61,7 @@ export function EditorSidebar({
                 key={t.id}
                 onClick={() => onThemeChange(t.id)}
                 title={t.label}
-                className="relative w-5 h-5 rounded-full transition-transform hover:scale-110 focus:outline-none flex-shrink-0"
+                className="relative w-5 h-5 rounded-full transition-transform hover:scale-110 focus:outline-none shrink-0"
                 style={{ background: t.fill }}
               >
                 {themeId === t.id && (
@@ -101,7 +101,7 @@ export function EditorSidebar({
       <div className="mx-5 h-px bg-[#f0ede8]" />
 
       {/* Facets */}
-      <div className="flex-1 overflow-y-auto px-5">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-5">
         <div className="flex items-center justify-between pt-5 pb-2">
           <p className="text-[10px] font-semibold text-[#b0aea8] uppercase tracking-widest">
             Facets
