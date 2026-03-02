@@ -27,6 +27,27 @@ export function arcPath(
 }
 
 /**
+ * Generates SVG path data for a single circular arc (open path).
+ * Useful when rendering donut segments as stroked arcs with round caps.
+ */
+export function arcStrokePath(
+  cx: number,
+  cy: number,
+  radius: number,
+  startAngle: number,
+  endAngle: number,
+): string {
+  const s = toRad(startAngle)
+  const e = toRad(endAngle)
+  const largeArc = endAngle - startAngle > 180 ? 1 : 0
+
+  return [
+    `M ${pt(cx + radius * Math.cos(s), cy + radius * Math.sin(s))}`,
+    `A ${radius} ${radius} 0 ${largeArc} 1 ${pt(cx + radius * Math.cos(e), cy + radius * Math.sin(e))}`,
+  ].join(' ')
+}
+
+/**
  * Generates SVG arc path data for a donut segment with rounded corners.
  *
  * Each of the four corners (outer-start, outer-end, inner-end, inner-start)
