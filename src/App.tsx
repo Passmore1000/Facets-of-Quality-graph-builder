@@ -82,14 +82,24 @@ export default function App() {
         </span>
         <button
           onClick={() => exportSVG(CHART_SVG_ID, safeFilename)}
-          className="text-[11px] font-medium text-[#888580] hover:text-[#1a1917] px-2.5 py-1.5 rounded-xl hover:bg-[#f3f1ec] transition-colors"
+          className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#888580] hover:text-[#1a1917] px-2.5 py-1.5 rounded-xl hover:bg-[#f3f1ec] transition-colors"
         >
+          <svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M8 2V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M5.5 7.5L8 10.2L10.5 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M3 12.5H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
           SVG
         </button>
         <button
           onClick={() => exportPNG(CHART_SVG_ID, safeFilename)}
-          className="text-[11px] font-medium text-[#888580] hover:text-[#1a1917] px-2.5 py-1.5 rounded-xl hover:bg-[#f3f1ec] transition-colors"
+          className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#888580] hover:text-[#1a1917] px-2.5 py-1.5 rounded-xl hover:bg-[#f3f1ec] transition-colors"
         >
+          <svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M8 2V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M5.5 7.5L8 10.2L10.5 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M3 12.5H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
           PNG
         </button>
         <div className="w-px h-4 bg-[#e8e6e1] mx-1" />

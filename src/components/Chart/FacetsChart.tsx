@@ -11,6 +11,10 @@ interface Props {
   goalFacets?: Facet[]
   size?: number
   svgId?: string
+  showLabels?: boolean
+  animate?: boolean
+  cornerRadius?: number
+  segmentGapPx?: number
 }
 
 const INNER_RATIO = 0.22
@@ -98,11 +102,15 @@ export function FacetsChart({
   goalFacets,
   size = 380,
   svgId = 'facets-chart',
+  showLabels = true,
+  animate = true,
+  cornerRadius = CORNER_RADIUS,
+  segmentGapPx = SEGMENT_GAP_PX,
 }: Props) {
   const theme = getTheme(themeId)
   const safeGoalFacets = useMemo(() => goalFacets ?? [], [goalFacets])
-  const animatedFacetScores = useAnimatedScores(facets, ANIMATION_DURATION_MS)
-  const animatedGoalScores = useAnimatedScores(safeGoalFacets, ANIMATION_DURATION_MS)
+  const animatedFacetScores = useAnimatedScores(facets, animate ? ANIMATION_DURATION_MS : 0)
+  const animatedGoalScores = useAnimatedScores(safeGoalFacets, animate ? ANIMATION_DURATION_MS : 0)
   const animatedFacets = useMemo(
     () => facets.map((facet) => ({ ...facet, score: animatedFacetScores[facet.id] ?? facet.score })),
     [facets, animatedFacetScores],
@@ -114,10 +122,13 @@ export function FacetsChart({
 
   const cx = size / 2
   const cy = size / 2
-  const outerR = size / 2 - LABEL_GAP - 40
+  const outerPadding = showLabels ? LABEL_GAP + 40 : 8
+  const outerR = Math.max(6, size / 2 - outerPadding)
   const innerR = outerR * INNER_RATIO
   const ringMidR = (innerR + outerR) / 2
-  const padAngle = SEGMENT_GAP_PX / ringMidR
+  const effectiveGapPx = Math.min(segmentGapPx, Math.max(1.5, size * 0.03))
+  const effectiveCornerRadius = Math.min(cornerRadius, Math.max(0.8, (outerR - innerR) * 0.18))
+  const padAngle = effectiveGapPx / ringMidR
 
   const angles = segmentAngles(facets.length, 0)
 
@@ -128,13 +139,21 @@ export function FacetsChart({
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       xmlns="http://www.w3.org/2000/svg"
-      style={{ overflow: 'visible' }}
+      style={{ overflow: showLabels ? 'visible' : 'hidden' }}
     >
       <g transform={`translate(${cx}, ${cy})`}>
         {/* Track: subtle rounded corners on all segment edges */}
         {facets.map((facet, i) => {
           const { start, end } = angles[i]
-          const path = roundedSegmentPath(innerR, outerR, start, end, CORNER_RADIUS, padAngle, ringMidR)
+          const path = roundedSegmentPath(
+            innerR,
+            outerR,
+            start,
+            end,
+            effectiveCornerRadius,
+            padAngle,
+            ringMidR,
+          )
           if (!path) return null
 
           return <path key={`track-${facet.id}`} d={path} fill={theme.track} />
@@ -148,7 +167,15 @@ export function FacetsChart({
 
           const isGoalFacet = goalFacets?.some((g) => g.id === facet.id)
           const fillColor = isGoalFacet ? theme.highlight : theme.fill
-          const path = roundedSegmentPath(innerR, filledR, start, end, CORNER_RADIUS, padAngle, ringMidR)
+          const path = roundedSegmentPath(
+            innerR,
+            filledR,
+            start,
+            end,
+            effectiveCornerRadius,
+            padAngle,
+            ringMidR,
+          )
           if (!path) return null
 
           return <path key={`fill-${facet.id}`} d={path} fill={fillColor} />
@@ -161,7 +188,15 @@ export function FacetsChart({
           const { start, end } = angles[idx]
           const ratio = Math.min(Math.max(goal.score / maxScore, 0), 1)
           const filledR = innerR + ratio * (outerR - innerR)
-          const path = roundedSegmentPath(innerR, filledR, start, end, CORNER_RADIUS, padAngle, ringMidR)
+          const path = roundedSegmentPath(
+            innerR,
+            filledR,
+            start,
+            end,
+            effectiveCornerRadius,
+            padAngle,
+            ringMidR,
+          )
           if (!path) return null
 
           const POP = 10
@@ -182,7 +217,8 @@ export function FacetsChart({
       </g>
 
       {/* Labels */}
-      {animatedFacets.map((facet, i) => {
+      {showLabels &&
+        animatedFacets.map((facet, i) => {
         const { start, end } = angles[i]
         const labelR = outerR + LABEL_GAP
         const pos = labelPosition(cx, cy, start, end, labelR)

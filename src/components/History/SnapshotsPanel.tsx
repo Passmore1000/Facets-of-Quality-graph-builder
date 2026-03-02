@@ -28,21 +28,25 @@ export function SnapshotsPanel({ snapshots, onLoad, onDelete }: Props) {
   }
 
   return (
-    <div>
+    <div className="p-3 space-y-3">
       {snapshots.map((snapshot) => (
         <div
           key={snapshot.id}
-          className="group px-5 py-4 hover:bg-[#faf9f7] transition-colors border-b border-[#f0ede8] last:border-0"
+          className="group rounded-xl border border-[#ece9e4] bg-[#fcfbf9] px-3.5 py-3.5 transition-colors hover:bg-[#faf9f7] shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
         >
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-2.5">
             {/* Mini chart */}
-            <div className="flex-shrink-0 w-14 h-14 flex items-center justify-center">
+            <div className="shrink-0 w-12 h-12 flex items-center justify-center rounded-lg bg-white border border-[#eeece8]">
               <FacetsChart
                 facets={snapshot.facets}
                 maxScore={snapshot.maxScore}
                 themeId={snapshot.themeId}
-                size={56}
+                size={44}
                 svgId={`snap-${snapshot.id}`}
+                showLabels={false}
+                animate={false}
+                cornerRadius={1.5}
+                segmentGapPx={4}
               />
             </div>
 
@@ -51,12 +55,12 @@ export function SnapshotsPanel({ snapshots, onLoad, onDelete }: Props) {
               <p className="text-[13px] font-bold text-[#1a1917] truncate leading-tight">
                 {snapshot.label}
               </p>
-              <p className="text-[10px] font-semibold text-[#b0aea8] tracking-widest mt-1">
+              <p className="text-[9px] font-semibold text-[#b0aea8] tracking-[0.12em] mt-1 uppercase">
                 {formatDate(snapshot.createdAt)}
               </p>
-              <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-2">
+              <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1.5">
                 {snapshot.facets.map((f) => (
-                  <span key={f.id} className="text-[11px] text-[#888580]">
+                  <span key={f.id} className="text-[10px] text-[#888580]">
                     {f.name} <span className="font-bold text-[#555350]">{f.score}</span>
                   </span>
                 ))}
@@ -64,18 +68,17 @@ export function SnapshotsPanel({ snapshots, onLoad, onDelete }: Props) {
             </div>
           </div>
 
-          {/* Actions — appear on hover */}
-          <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex gap-2 mt-2.5">
             <button
               onClick={() => onLoad(snapshot)}
-              className="text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-colors hover:opacity-80"
+              className="text-[11px] font-semibold px-2.5 py-1 rounded-md transition-colors hover:opacity-80"
               style={{ color: 'var(--theme-fill)' }}
             >
               Restore
             </button>
             <button
               onClick={() => onDelete(snapshot.id)}
-              className="text-[11px] font-semibold text-[#b0aea8] hover:text-[#555350] px-3 py-1.5 rounded-lg hover:bg-[#f0ede8] transition-colors"
+              className="text-[11px] font-semibold text-[#b0aea8] hover:text-[#555350] px-2.5 py-1 rounded-md hover:bg-[#f0ede8] transition-colors"
             >
               Delete
             </button>
