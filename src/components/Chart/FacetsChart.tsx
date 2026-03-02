@@ -1,4 +1,4 @@
-import { arcPath, labelPosition, segmentAngles } from '../../utils/chartMath'
+import { outerRoundedArcPath, labelPosition, segmentAngles } from '../../utils/chartMath'
 import { getTheme } from '../../utils/themes'
 import type { Facet } from '../../types'
 
@@ -6,16 +6,15 @@ interface Props {
   facets: Facet[]
   maxScore: number
   themeId: string
-  /** If provided, renders a comparison overlay (goal state) */
   goalFacets?: Facet[]
   size?: number
-  /** Element id used for export */
   svgId?: string
 }
 
 const GAP_DEG = 3
-const INNER_RATIO = 0.22   // hole as fraction of outer radius
-const LABEL_GAP = 28       // px gap between outer edge and label
+const INNER_RATIO = 0.22
+const LABEL_GAP = 34
+const CORNER_RADIUS = 8
 
 export function FacetsChart({
   facets,
@@ -28,7 +27,7 @@ export function FacetsChart({
   const theme = getTheme(themeId)
   const cx = size / 2
   const cy = size / 2
-  const outerR = size / 2 - LABEL_GAP - 40  // leave room for labels
+  const outerR = size / 2 - LABEL_GAP - 40
   const innerR = outerR * INNER_RATIO
 
   const angles = segmentAngles(facets.length, GAP_DEG)
@@ -41,47 +40,43 @@ export function FacetsChart({
       viewBox={`0 0 ${size} ${size}`}
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Background: light segments at max score */}
+      {/* Track: full-width rounded segments */}
       {facets.map((facet, i) => {
         const { start, end } = angles[i]
         return (
           <path
             key={`track-${facet.id}`}
-            d={arcPath(cx, cy, innerR, outerR, start, end)}
+            d={outerRoundedArcPath(cx, cy, innerR, outerR, start, end, CORNER_RADIUS)}
             fill={theme.track}
           />
         )
       })}
 
-      {/* Filled segments based on score */}
+      {/* Fill: score-proportional rounded segments */}
       {facets.map((facet, i) => {
         const { start, end } = angles[i]
         const ratio = Math.min(Math.max(facet.score / maxScore, 0), 1)
         const filledR = innerR + ratio * (outerR - innerR)
-
-        // If goal provided, use highlight for this facet if it has a goal
         const isGoalFacet = goalFacets?.some((g) => g.id === facet.id)
         const fillColor = isGoalFacet ? theme.highlight : theme.fill
 
         return (
           <path
             key={`fill-${facet.id}`}
-            d={arcPath(cx, cy, innerR, filledR, start, end)}
+            d={outerRoundedArcPath(cx, cy, innerR, filledR, start, end, CORNER_RADIUS)}
             fill={fillColor}
           />
         )
       })}
 
-      {/* Goal overlay segments (popped out, if provided) */}
+      {/* Goal overlay segments */}
       {goalFacets?.map((goal) => {
         const idx = facets.findIndex((f) => f.id === goal.id)
         if (idx === -1) return null
         const { start, end } = angles[idx]
         const ratio = Math.min(Math.max(goal.score / maxScore, 0), 1)
         const filledR = innerR + ratio * (outerR - innerR)
-        const POP = 10  // offset outward
-
-        // Translate segment outward along its midpoint angle
+        const POP = 10
         const midAngle = ((start + end) / 2 - 90) * (Math.PI / 180)
         const tx = Math.cos(midAngle) * POP
         const ty = Math.sin(midAngle) * POP
@@ -89,7 +84,7 @@ export function FacetsChart({
         return (
           <path
             key={`goal-${goal.id}`}
-            d={arcPath(cx, cy, innerR, filledR, start, end)}
+            d={outerRoundedArcPath(cx, cy, innerR, filledR, start, end, CORNER_RADIUS)}
             fill={theme.highlight}
             transform={`translate(${tx}, ${ty})`}
             opacity={0.9}
@@ -116,11 +111,11 @@ export function FacetsChart({
           <g key={`label-${facet.id}`}>
             <text
               x={pos.x}
-              y={pos.y - 8}
+              y={pos.y - 6}
               textAnchor={textAnchor}
               dominantBaseline="auto"
-              fontSize={15}
-              fontWeight={700}
+              fontSize={19}
+              fontWeight={800}
               fill={theme.text}
               fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
             >
@@ -128,13 +123,13 @@ export function FacetsChart({
             </text>
             <text
               x={pos.x}
-              y={pos.y + 10}
+              y={pos.y + 14}
               textAnchor={textAnchor}
               dominantBaseline="auto"
-              fontSize={12}
+              fontSize={13}
               fontWeight={400}
               fill={theme.text}
-              opacity={0.7}
+              opacity={0.65}
               fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
             >
               {facet.name}

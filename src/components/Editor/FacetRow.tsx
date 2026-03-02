@@ -9,22 +9,25 @@ interface Props {
 
 export function FacetRow({ facet, maxScore, onUpdate, onRemove }: Props) {
   return (
-    <div className="group flex flex-col gap-1.5 py-3 border-b border-gray-100 last:border-0">
-      <div className="flex items-center gap-2">
+    <div className="group py-3.5 border-b border-[#f0ede8] last:border-0">
+      <div className="flex items-center gap-2 mb-2.5">
         <input
           type="text"
           value={facet.name}
           onChange={(e) => onUpdate({ name: e.target.value })}
-          className="flex-1 text-sm font-medium bg-transparent border-none outline-none focus:bg-gray-50 rounded px-1 -mx-1 py-0.5"
+          className="flex-1 text-[13px] font-semibold text-[#1a1917] bg-transparent border-none outline-none focus:bg-[#faf9f7] rounded-lg px-1.5 -mx-1.5 py-0.5 transition-colors placeholder:text-[#c8c5bf]"
           placeholder="Facet name"
         />
-        <span className="text-xs font-semibold text-gray-500 w-6 text-right">
+        <span
+          className="text-[11px] font-bold tabular-nums flex-shrink-0"
+          style={{ color: 'var(--theme-fill, #3bb5f0)' }}
+        >
           {facet.score}
         </span>
         <button
           onClick={onRemove}
-          className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-400 transition-all text-sm leading-none"
-          title="Remove facet"
+          className="opacity-0 group-hover:opacity-100 w-4 h-4 flex items-center justify-center text-[#c8c5bf] hover:text-[#e8460a] transition-all text-sm leading-none flex-shrink-0"
+          title="Remove"
         >
           ×
         </button>
@@ -36,8 +39,7 @@ export function FacetRow({ facet, maxScore, onUpdate, onRemove }: Props) {
         step={0.5}
         value={facet.score}
         onChange={(e) => onUpdate({ score: parseFloat(e.target.value) })}
-        className="w-full accent-current"
-        style={{ accentColor: 'var(--theme-fill, #3bb5f0)' }}
+        className="w-full cursor-pointer"
       />
     </div>
   )

@@ -30,81 +30,96 @@ export function EditorSidebar({
   onSaveSnapshot,
 }: Props) {
   return (
-    <aside className="w-72 bg-white border-r border-gray-100 flex flex-col h-full overflow-hidden">
+    <aside className="fixed top-5 left-5 bottom-5 z-20 w-64 flex flex-col bg-white rounded-2xl border border-[#e8e6e1] shadow-[0_4px_24px_rgba(0,0,0,0.08)] overflow-hidden">
+
       {/* Project name */}
-      <div className="px-5 pt-5 pb-4 border-b border-gray-100">
-        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+      <div className="px-5 pt-6 pb-5">
+        <p className="text-[10px] font-semibold text-[#b0aea8] uppercase tracking-widest mb-2">
           Project
-        </label>
+        </p>
         <input
           type="text"
           value={projectName}
           onChange={(e) => onNameChange(e.target.value)}
-          className="w-full text-base font-semibold bg-transparent border-none outline-none focus:bg-gray-50 rounded px-1 -mx-1 py-0.5"
-          placeholder="Project name"
+          className="w-full text-base font-bold text-[#1a1917] bg-transparent border-none outline-none placeholder:text-[#d0cdc7] leading-snug"
+          placeholder="Untitled project"
         />
       </div>
 
-      {/* Settings */}
-      <div className="px-5 py-4 border-b border-gray-100 flex gap-4">
-        <div className="flex-1">
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">
-            Scale max
-          </label>
-          <select
-            value={maxScore}
-            onChange={(e) => onMaxScoreChange(Number(e.target.value))}
-            className="w-full text-sm border border-gray-200 rounded-md px-2 py-1.5 bg-white outline-none focus:border-gray-400"
-          >
-            {[5, 10].map((v) => (
-              <option key={v} value={v}>{v}</option>
-            ))}
-          </select>
-        </div>
-        <div className="flex-1">
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">
-            Color
-          </label>
-          <select
-            value={themeId}
-            onChange={(e) => onThemeChange(e.target.value)}
-            className="w-full text-sm border border-gray-200 rounded-md px-2 py-1.5 bg-white outline-none focus:border-gray-400"
-          >
+      <div className="mx-5 h-px bg-[#f0ede8]" />
+
+      {/* Colour + scale */}
+      <div className="px-5 py-5 flex flex-col gap-5">
+        {/* Colour swatches */}
+        <div>
+          <p className="text-[10px] font-semibold text-[#b0aea8] uppercase tracking-widest mb-3">
+            Colour
+          </p>
+          <div className="flex gap-2.5">
             {COLOR_THEMES.map((t) => (
-              <option key={t.id} value={t.id}>{t.label}</option>
+              <button
+                key={t.id}
+                onClick={() => onThemeChange(t.id)}
+                title={t.label}
+                className="relative w-5 h-5 rounded-full transition-transform hover:scale-110 focus:outline-none flex-shrink-0"
+                style={{ background: t.fill }}
+              >
+                {themeId === t.id && (
+                  <span
+                    className="absolute inset-0 rounded-full"
+                    style={{ boxShadow: `0 0 0 2px white, 0 0 0 3.5px ${t.fill}` }}
+                  />
+                )}
+              </button>
             ))}
-          </select>
+          </div>
+        </div>
+
+        {/* Scale — segmented control */}
+        <div>
+          <p className="text-[10px] font-semibold text-[#b0aea8] uppercase tracking-widest mb-3">
+            Scale
+          </p>
+          <div className="flex rounded-xl overflow-hidden border border-[#e8e6e1] bg-[#faf9f7] p-1 gap-1">
+            {[5, 10].map((v) => (
+              <button
+                key={v}
+                onClick={() => onMaxScoreChange(v)}
+                className={`flex-1 text-[11px] py-1.5 rounded-lg font-semibold transition-colors ${
+                  maxScore === v
+                    ? 'bg-white text-[#1a1917] ring-1 ring-[#e0ddd8]'
+                    : 'text-[#b0aea8] hover:text-[#555350]'
+                }`}
+              >
+                1–{v}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Color swatches */}
-      <div className="px-5 py-3 border-b border-gray-100 flex gap-2">
-        {COLOR_THEMES.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => onThemeChange(t.id)}
-            className={`w-6 h-6 rounded-full transition-transform ${
-              themeId === t.id ? 'scale-125 ring-2 ring-offset-1 ring-gray-400' : 'hover:scale-110'
-            }`}
-            style={{ background: t.fill }}
-            title={t.label}
-          />
-        ))}
-      </div>
+      <div className="mx-5 h-px bg-[#f0ede8]" />
 
-      {/* Facets list */}
+      {/* Facets */}
       <div className="flex-1 overflow-y-auto px-5">
-        <div className="flex items-center justify-between pt-4 pb-2">
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+        <div className="flex items-center justify-between pt-5 pb-2">
+          <p className="text-[10px] font-semibold text-[#b0aea8] uppercase tracking-widest">
             Facets
-          </label>
+          </p>
           <button
             onClick={onAddFacet}
-            className="text-xs text-blue-500 hover:text-blue-700 font-medium"
+            className="text-[11px] font-semibold transition-colors hover:opacity-70"
+            style={{ color: 'var(--theme-fill)' }}
           >
             + Add
           </button>
         </div>
+
+        {facets.length === 0 && (
+          <p className="text-xs text-[#c8c5bf] py-5 text-center">
+            No facets yet.
+          </p>
+        )}
 
         {facets.map((facet) => (
           <FacetRow
@@ -115,19 +130,14 @@ export function EditorSidebar({
             onRemove={() => onRemoveFacet(facet.id)}
           />
         ))}
-
-        {facets.length === 0 && (
-          <p className="text-sm text-gray-400 py-4 text-center">
-            No facets yet. Add one to get started.
-          </p>
-        )}
       </div>
 
-      {/* Save snapshot */}
-      <div className="px-5 py-4 border-t border-gray-100">
+      {/* Save */}
+      <div className="px-5 py-5 border-t border-[#f0ede8]">
         <button
           onClick={onSaveSnapshot}
-          className="w-full bg-gray-900 hover:bg-gray-700 text-white text-sm font-medium rounded-lg py-2.5 transition-colors"
+          className="w-full text-white text-xs font-bold rounded-xl py-3 tracking-wide transition-all hover:brightness-90 active:brightness-75"
+          style={{ background: 'var(--theme-fill)' }}
         >
           Save snapshot
         </button>
