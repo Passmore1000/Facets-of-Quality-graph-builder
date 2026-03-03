@@ -51,6 +51,7 @@ export default function App() {
   } = useProject()
 
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [mobileEditorOpen, setMobileEditorOpen] = useState(false)
   const [saveModalOpen, setSaveModalOpen] = useState(false)
   const [snapshotLabel, setSnapshotLabel] = useState('')
   const [isInspirationCardOpen, setIsInspirationCardOpen] = useState(false)
@@ -59,6 +60,10 @@ export default function App() {
   const inspirationCloseRef = useRef<HTMLButtonElement | null>(null)
   const previousCardOpenRef = useRef(false)
   const inspirationCloseTimerRef = useRef<number | null>(null)
+  const [viewport, setViewport] = useState(() => ({
+    width: typeof window !== 'undefined' ? window.innerWidth : 1200,
+    height: typeof window !== 'undefined' ? window.innerHeight : 800,
+  }))
 
   const theme = getTheme(project.themeId)
   const inspirationCardTextColor = getCardTextColor(theme.fill)
@@ -71,6 +76,11 @@ export default function App() {
     ? 'cubic-bezier(0.2, 0.88, 0.24, 1)'
     : 'cubic-bezier(0.2, 0.75, 0.25, 1)'
   const safeFilename = project.name.replace(/[^a-z0-9]/gi, '-').toLowerCase() || 'facets'
+  const isMobile = viewport.width < 768
+  const chartMaxByWidth = isMobile ? viewport.width - 28 : viewport.width - 420
+  const chartMaxByHeight = isMobile ? viewport.height - 230 : viewport.height - 88
+  const chartSize = Math.max(220, Math.min(530, chartMaxByWidth, chartMaxByHeight))
+  const showChartLabels = !isMobile && chartSize >= 320
 
   function handleSaveSnapshot() {
     const label = snapshotLabel.trim() || `Snapshot ${new Date().toLocaleDateString()}`
@@ -107,6 +117,18 @@ export default function App() {
     }
   }, [])
 
+  useEffect(() => {
+    function handleResize() {
+      setViewport({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      })
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   const isInspirationCardExpanded = isInspirationCardOpen || isInspirationCardClosing
 
   useEffect(() => {
@@ -136,15 +158,21 @@ export default function App() {
 
   return (
     <div
-      className="relative w-screen h-screen overflow-hidden"
+      className="relative min-h-dvh w-full overflow-x-hidden"
       style={{
         background: '#f3f1ec',
         '--theme-fill': theme.fill,
         '--theme-track': theme.track,
       } as React.CSSProperties}
     >
-      {/* Full-viewport chart canvas */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      {/* Main chart canvas */}
+      <div
+        className={`flex justify-center ${
+          isMobile
+            ? 'px-3 pb-24 pt-20'
+            : 'pointer-events-none absolute inset-0 items-center'
+        }`}
+      >
         {project.facets.length === 0 ? (
           <p className="text-sm text-[#aaa9a4]">Add facets in the panel to get started.</p>
         ) : (
@@ -153,71 +181,117 @@ export default function App() {
             facets={project.facets}
             maxScore={project.maxScore}
             themeId={project.themeId}
-            size={530}
+            size={chartSize}
+            showLabels={showChartLabels}
           />
         )}
       </div>
 
-      {/* Floating editor panel — left */}
-      <EditorSidebar
-        projectName={project.name}
-        facets={project.facets}
-        themeId={project.themeId}
-        maxScore={project.maxScore}
-        onNameChange={setName}
-        onThemeChange={setTheme}
-        onMaxScoreChange={setMaxScore}
-        onAddFacet={addFacet}
-        onRemoveFacet={removeFacet}
-        onUpdateFacet={updateFacet}
-        onSaveSnapshot={() => setSaveModalOpen(true)}
-      />
+      {!isMobile && (
+        <EditorSidebar
+          projectName={project.name}
+          facets={project.facets}
+          themeId={project.themeId}
+          maxScore={project.maxScore}
+          onNameChange={setName}
+          onThemeChange={setTheme}
+          onMaxScoreChange={setMaxScore}
+          onAddFacet={addFacet}
+          onRemoveFacet={removeFacet}
+          onUpdateFacet={updateFacet}
+          onSaveSnapshot={() => setSaveModalOpen(true)}
+        />
+      )}
+
+      {isMobile && (
+        <>
+          <EditorSidebar
+            mode="mobile"
+            isOpen={mobileEditorOpen}
+            onClose={() => setMobileEditorOpen(false)}
+            projectName={project.name}
+            facets={project.facets}
+            themeId={project.themeId}
+            maxScore={project.maxScore}
+            onNameChange={setName}
+            onThemeChange={setTheme}
+            onMaxScoreChange={setMaxScore}
+            onAddFacet={addFacet}
+            onRemoveFacet={removeFacet}
+            onUpdateFacet={updateFacet}
+            onSaveSnapshot={() => {
+              setSaveModalOpen(true)
+              setMobileEditorOpen(false)
+            }}
+          />
+          {(mobileEditorOpen || historyOpen) && (
+            <button
+              type="button"
+              onClick={() => {
+                setMobileEditorOpen(false)
+                setHistoryOpen(false)
+              }}
+              aria-label="Close open panel"
+              className="fixed inset-0 z-30 bg-black/20"
+            />
+          )}
+        </>
+      )}
 
       {/* Floating toolbar — top right */}
-      <div className="fixed top-5 right-5 z-20 flex items-center gap-1 bg-white rounded-2xl border border-[#e8e6e1] shadow-[0_2px_12px_rgba(0,0,0,0.06)] px-2 py-1.5">
-        <span className="text-[11px] font-medium text-[#b0aea8] px-2 border-r border-[#e8e6e1] mr-1">
+      <div className="fixed left-3 right-3 top-3 z-20 flex items-center gap-1 rounded-2xl border border-[#e8e6e1] bg-white px-2 py-1.5 shadow-[0_2px_12px_rgba(0,0,0,0.06)] md:left-auto md:right-5 md:top-5">
+        <span className="mr-1 truncate border-r border-[#e8e6e1] px-2 text-[11px] font-medium text-[#b0aea8]">
           {project.name}
         </span>
         <button
           onClick={() => exportSVG(CHART_SVG_ID, safeFilename)}
-          className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#888580] hover:text-[#1a1917] px-2.5 py-1.5 rounded-xl hover:bg-[#f3f1ec] transition-colors"
+          className="inline-flex min-h-9 items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-[11px] font-medium text-[#888580] transition-colors hover:bg-[#f3f1ec] hover:text-[#1a1917]"
+          aria-label="Export as SVG"
         >
           <svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true">
             <path d="M8 2V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             <path d="M5.5 7.5L8 10.2L10.5 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             <path d="M3 12.5H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
-          SVG
+          <span className="hidden sm:inline">SVG</span>
         </button>
         <button
           onClick={() => exportPNG(CHART_SVG_ID, safeFilename)}
-          className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#888580] hover:text-[#1a1917] px-2.5 py-1.5 rounded-xl hover:bg-[#f3f1ec] transition-colors"
+          className="inline-flex min-h-9 items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-[11px] font-medium text-[#888580] transition-colors hover:bg-[#f3f1ec] hover:text-[#1a1917]"
+          aria-label="Export as PNG"
         >
           <svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true">
             <path d="M8 2V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             <path d="M5.5 7.5L8 10.2L10.5 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             <path d="M3 12.5H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
-          PNG
+          <span className="hidden sm:inline">PNG</span>
         </button>
-        <div className="w-px h-4 bg-[#e8e6e1] mx-1" />
+        <div className="mx-1 h-4 w-px bg-[#e8e6e1]" />
         <button
           onClick={() => setHistoryOpen((o) => !o)}
-          className={`text-[11px] font-medium px-2.5 py-1.5 rounded-xl transition-colors ${
+          className={`min-h-9 rounded-xl px-2.5 py-1.5 text-[11px] font-medium transition-colors ${
             historyOpen
               ? 'bg-[#1a1917] text-white'
               : 'text-[#888580] hover:text-[#1a1917] hover:bg-[#f3f1ec]'
           }`}
+          aria-label="Toggle history panel"
         >
-          History{project.snapshots.length > 0 ? ` · ${project.snapshots.length}` : ''}
+          <span className="hidden sm:inline">
+            History{project.snapshots.length > 0 ? ` · ${project.snapshots.length}` : ''}
+          </span>
+          <span className="sm:hidden">History</span>
         </button>
       </div>
 
       {/* Floating history panel — right */}
       {historyOpen && (
         <div
-          className="fixed z-20 flex flex-col bg-white rounded-2xl border border-[#e8e6e1] shadow-[0_4px_24px_rgba(0,0,0,0.08)] overflow-hidden"
-          style={{ top: '72px', right: '20px', bottom: '20px', width: '300px' }}
+          className={`fixed z-40 flex flex-col overflow-hidden border border-[#e8e6e1] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08)] ${
+            isMobile
+              ? 'inset-x-3 bottom-3 top-20 rounded-2xl'
+              : 'bottom-5 right-5 top-[72px] w-[300px] rounded-2xl'
+          }`}
         >
           <div className="flex items-center justify-between px-5 py-4 border-b border-[#f0ede8]">
             <h2 className="text-xs font-semibold text-[#1a1917] uppercase tracking-widest">Snapshots</h2>
@@ -241,10 +315,33 @@ export default function App() {
         </div>
       )}
 
+      {isMobile && (
+        <div className="fixed inset-x-3 bottom-3 z-20 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setHistoryOpen(false)
+              setMobileEditorOpen(true)
+            }}
+            className="flex-1 rounded-xl border border-[#e8e6e1] bg-white px-4 py-3 text-xs font-semibold text-[#1a1917] shadow-[0_2px_10px_rgba(0,0,0,0.08)]"
+          >
+            Edit facets
+          </button>
+          <button
+            type="button"
+            onClick={() => setSaveModalOpen(true)}
+            className="rounded-xl px-5 py-3 text-xs font-semibold text-white shadow-[0_2px_10px_rgba(0,0,0,0.12)]"
+            style={{ background: theme.fill }}
+          >
+            Save
+          </button>
+        </div>
+      )}
+
       {/* Save snapshot modal */}
       {saveModalOpen && (
         <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl border border-[#e8e6e1] shadow-[0_8px_40px_rgba(0,0,0,0.12)] p-6 w-80">
+          <div className="w-[calc(100vw-1.5rem)] max-w-80 rounded-2xl border border-[#e8e6e1] bg-white p-6 shadow-[0_8px_40px_rgba(0,0,0,0.12)]">
             <h2 className="text-base font-bold text-[#1a1917] mb-1">Save snapshot</h2>
             <p className="text-xs text-[#888580] mb-5 leading-relaxed">
               Name this state so you can track your progress over time.
@@ -278,7 +375,7 @@ export default function App() {
       )}
 
       {/* Interface Craft inspiration easter egg */}
-      {isInspirationCardExpanded && (
+      {!isMobile && isInspirationCardExpanded && (
         <button
           type="button"
           onClick={handleCloseInspirationCard}
@@ -287,6 +384,7 @@ export default function App() {
         />
       )}
 
+      {!isMobile && (
       <div
         id={INSPIRATION_CARD_ID}
         aria-label="Inspiration card for this project"
@@ -421,6 +519,7 @@ export default function App() {
           </div>
         </div>
       </div>
+      )}
     </div>
   )
 }

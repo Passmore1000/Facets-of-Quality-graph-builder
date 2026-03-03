@@ -14,6 +14,9 @@ interface Props {
   onRemoveFacet: (id: string) => void
   onUpdateFacet: (id: string, changes: Partial<Facet>) => void
   onSaveSnapshot: () => void
+  mode?: 'desktop' | 'mobile'
+  isOpen?: boolean
+  onClose?: () => void
 }
 
 export function EditorSidebar({
@@ -28,15 +31,37 @@ export function EditorSidebar({
   onRemoveFacet,
   onUpdateFacet,
   onSaveSnapshot,
+  mode = 'desktop',
+  isOpen = true,
+  onClose,
 }: Props) {
+  const isMobileMode = mode === 'mobile'
+  const containerClassName = isMobileMode
+    ? `fixed inset-x-3 bottom-3 z-40 max-h-[78dvh] w-auto flex flex-col bg-white rounded-2xl border border-[#e8e6e1] shadow-[0_10px_32px_rgba(0,0,0,0.18)] overflow-hidden transition-transform duration-200 ${
+        isOpen ? 'translate-y-0' : 'translate-y-[110%]'
+      }`
+    : 'fixed top-5 left-5 bottom-5 z-20 w-64 flex flex-col bg-white rounded-2xl border border-[#e8e6e1] shadow-[0_4px_24px_rgba(0,0,0,0.08)] overflow-hidden'
+
   return (
-    <aside className="fixed top-5 left-5 bottom-5 z-20 w-64 flex flex-col bg-white rounded-2xl border border-[#e8e6e1] shadow-[0_4px_24px_rgba(0,0,0,0.08)] overflow-hidden">
+    <aside className={containerClassName} aria-hidden={isMobileMode && !isOpen}>
 
       {/* Project name */}
       <div className="px-5 pt-6 pb-5">
-        <p className="text-[10px] font-semibold text-[#b0aea8] uppercase tracking-widest mb-2">
-          Project
-        </p>
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <p className="text-[10px] font-semibold text-[#b0aea8] uppercase tracking-widest">
+            Project
+          </p>
+          {isMobileMode && onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#b0aea8] transition-colors hover:bg-[#f3f1ec] hover:text-[#1a1917]"
+              aria-label="Close editor"
+            >
+              ×
+            </button>
+          )}
+        </div>
         <input
           type="text"
           value={projectName}
