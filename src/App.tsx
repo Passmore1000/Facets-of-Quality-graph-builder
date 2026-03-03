@@ -61,9 +61,11 @@ export default function App() {
   const [saveModalOpen, setSaveModalOpen] = useState(false)
   const [snapshotLabel, setSnapshotLabel] = useState('')
   const [isInspirationCardOpen, setIsInspirationCardOpen] = useState(false)
+  const [isInspirationCardClosing, setIsInspirationCardClosing] = useState(false)
   const inspirationTriggerRef = useRef<HTMLButtonElement | null>(null)
   const inspirationCloseRef = useRef<HTMLButtonElement | null>(null)
   const previousCardOpenRef = useRef(false)
+  const inspirationCloseTimerRef = useRef<number | null>(null)
 
   const theme = getTheme(project.themeId)
   const inspirationCardTextColor = getCardTextColor(theme.fill)
@@ -86,10 +88,41 @@ export default function App() {
   }
 
   function handleOpenInspirationCard() {
+    if (inspirationCloseTimerRef.current !== null) {
+      window.clearTimeout(inspirationCloseTimerRef.current)
+      inspirationCloseTimerRef.current = null
+    }
+    setIsInspirationCardClosing(false)
     setIsInspirationCardOpen(true)
   }
 
   function handleCloseInspirationCard() {
+    if (!isInspirationCardOpen || isInspirationCardClosing) return
+
+    setIsInspirationCardOpen(false)
+    setIsInspirationCardClosing(true)
+    inspirationCloseTimerRef.current = window.setTimeout(() => {
+      setIsInspirationCardClosing(false)
+      inspirationCloseTimerRef.current = null
+    }, 380)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (inspirationCloseTimerRef.current !== null) {
+        window.clearTimeout(inspirationCloseTimerRef.current)
+      }
+    }
+  }, [])
+
+  const isInspirationCardExpanded = isInspirationCardOpen || isInspirationCardClosing
+
+  function handleCloseInspirationCardImmediately() {
+    if (inspirationCloseTimerRef.current !== null) {
+      window.clearTimeout(inspirationCloseTimerRef.current)
+      inspirationCloseTimerRef.current = null
+    }
+    setIsInspirationCardClosing(false)
     setIsInspirationCardOpen(false)
   }
 
@@ -98,7 +131,7 @@ export default function App() {
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
-        setIsInspirationCardOpen(false)
+        handleCloseInspirationCard()
       }
     }
 
@@ -262,7 +295,7 @@ export default function App() {
       )}
 
       {/* Interface Craft inspiration easter egg */}
-      {isInspirationCardOpen && (
+      {isInspirationCardExpanded && (
         <button
           type="button"
           onClick={handleCloseInspirationCard}
@@ -275,18 +308,18 @@ export default function App() {
         id={INSPIRATION_CARD_ID}
         aria-label="Inspiration card for this project"
         className={`fixed z-40 overflow-hidden border border-black/10 text-left transition-all duration-450 ease-out ${
-          isInspirationCardOpen
+          isInspirationCardExpanded
             ? 'right-1/2 bottom-1/2 w-[min(88vw,380px)] translate-x-1/2 translate-y-1/2 rotate-0 rounded-[30px] p-5 shadow-[0_22px_48px_rgba(0,0,0,0.22)]'
             : 'right-9 bottom-7 h-64 w-48 -rotate-6 rounded-[24px] p-4 shadow-[0_10px_24px_rgba(0,0,0,0.18)] hover:-translate-y-1 hover:-rotate-3 hover:shadow-[0_16px_32px_rgba(0,0,0,0.2)]'
         }`}
         style={{
           background: theme.fill,
           color: inspirationCardTextColor,
-          transitionDuration: cardTransitionDuration,
+          transitionDuration: isInspirationCardClosing ? '620ms' : cardTransitionDuration,
           transitionTimingFunction: cardTransitionEasing,
         }}
       >
-        {!isInspirationCardOpen && (
+        {!isInspirationCardExpanded && (
           <button
             ref={inspirationTriggerRef}
             type="button"
@@ -301,7 +334,7 @@ export default function App() {
           </button>
         )}
 
-        <div className={`relative flex flex-col ${isInspirationCardOpen ? 'pb-1' : 'h-full'}`}>
+        <div className={`relative flex flex-col ${isInspirationCardExpanded ? 'pb-1' : 'h-full'}`}>
           <div
             aria-hidden="true"
             className="h-24 w-full rounded-xl"
@@ -373,7 +406,7 @@ export default function App() {
                   href={INTERFACE_CRAFT_URL}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-black/5 px-3 py-1.5 text-[11px] font-medium opacity-80 transition-[opacity,background-color,border-color] hover:border-black/15 hover:bg-black/7 hover:opacity-100"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-black/15 bg-transparent px-3 py-1.5 text-[11px] font-medium opacity-70 transition-[opacity,background-color,border-color] hover:border-black/18 hover:bg-black/5 hover:opacity-90"
                 >
                   Visit Interface Craft
                   <span aria-hidden="true">↗</span>
