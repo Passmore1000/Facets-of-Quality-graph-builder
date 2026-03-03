@@ -386,7 +386,10 @@ export default function App() {
                 intent into a shared, evolving snapshot the team can critique and improve over time.
               </p>
               <p className="mt-3 text-sm leading-relaxed opacity-92">
-                This project is a respectful nod to Interface Craft, and the thoughtful framework behind it.
+                This project is a respectful nod to Interface Craft and the thoughtful frameworks within it.
+              </p>
+              <p className="mt-3 text-sm leading-relaxed opacity-92">
+                If you care about craft and design, this is an invaluable resource.
               </p>
 
               <div
