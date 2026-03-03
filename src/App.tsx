@@ -62,13 +62,13 @@ export default function App() {
 
   const theme = getTheme(project.themeId)
   const inspirationCardTextColor = getCardTextColor(theme.fill)
-  const cardTransitionDuration = isInspirationCardOpen ? '450ms' : '820ms'
+  const cardTransitionDuration = isInspirationCardOpen ? '460ms' : '820ms'
   const cardTransitionEasing = isInspirationCardOpen
-    ? 'cubic-bezier(0.22, 1, 0.36, 1)'
+    ? 'cubic-bezier(0.22, 0.88, 0.3, 1)'
     : 'cubic-bezier(0.18, 0.8, 0.2, 1)'
-  const revealTransitionDuration = isInspirationCardOpen ? '950ms' : '720ms'
+  const revealTransitionDuration = isInspirationCardOpen ? '860ms' : '720ms'
   const revealTransitionEasing = isInspirationCardOpen
-    ? 'cubic-bezier(0.19, 1, 0.22, 1)'
+    ? 'cubic-bezier(0.2, 0.88, 0.24, 1)'
     : 'cubic-bezier(0.2, 0.75, 0.25, 1)'
   const safeFilename = project.name.replace(/[^a-z0-9]/gi, '-').toLowerCase() || 'facets'
 
@@ -108,15 +108,6 @@ export default function App() {
   }, [])
 
   const isInspirationCardExpanded = isInspirationCardOpen || isInspirationCardClosing
-
-  function handleCloseInspirationCardImmediately() {
-    if (inspirationCloseTimerRef.current !== null) {
-      window.clearTimeout(inspirationCloseTimerRef.current)
-      inspirationCloseTimerRef.current = null
-    }
-    setIsInspirationCardClosing(false)
-    setIsInspirationCardOpen(false)
-  }
 
   useEffect(() => {
     if (!isInspirationCardOpen) return
@@ -332,8 +323,9 @@ export default function App() {
               isInspirationCardExpanded ? 'h-24' : 'h-14'
             }`}
             style={{
+              transitionDuration: isInspirationCardExpanded ? '520ms' : '620ms',
               transitionTimingFunction: isInspirationCardExpanded
-                ? 'cubic-bezier(0.22, 1, 0.36, 1)'
+                ? 'cubic-bezier(0.22, 0.88, 0.3, 1)'
                 : 'cubic-bezier(0.2, 0.75, 0.25, 1)',
             }}
           >
@@ -345,8 +337,9 @@ export default function App() {
                 isInspirationCardExpanded ? 'h-full w-full' : 'h-11 w-auto'
               }`}
               style={{
+                transitionDuration: isInspirationCardExpanded ? '520ms' : '620ms',
                 transitionTimingFunction: isInspirationCardExpanded
-                  ? 'cubic-bezier(0.22, 1, 0.36, 1)'
+                  ? 'cubic-bezier(0.22, 0.88, 0.3, 1)'
                   : 'cubic-bezier(0.2, 0.75, 0.25, 1)',
               }}
             />
@@ -367,20 +360,20 @@ export default function App() {
           <div
             className={`origin-top overflow-hidden transition-[max-height,margin] duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] ${
               isInspirationCardOpen
-                ? 'mt-4 max-h-64 delay-500'
+                ? 'mt-4 max-h-64 delay-360'
                 : 'max-h-0 delay-0'
             }`}
             style={{
-              transitionDuration: isInspirationCardOpen ? '700ms' : '620ms',
+              transitionDuration: isInspirationCardOpen ? '620ms' : '620ms',
               transitionTimingFunction: isInspirationCardOpen
-                ? 'cubic-bezier(0.19, 1, 0.22, 1)'
+                ? 'cubic-bezier(0.2, 0.88, 0.24, 1)'
                 : 'cubic-bezier(0.2, 0.75, 0.25, 1)',
             }}
           >
             <div
               className={`transition-[opacity,filter,transform] duration-950 ease-[cubic-bezier(0.19,1,0.22,1)] ${
                 isInspirationCardOpen
-                  ? 'translate-y-0 opacity-100 blur-0 delay-700'
+                  ? 'translate-y-0 opacity-100 blur-0 delay-560'
                   : '-translate-y-0.5 opacity-0 blur-[6px] delay-0'
               }`}
               style={{
@@ -400,7 +393,7 @@ export default function App() {
                 className={`mt-5 flex items-center justify-between gap-3 border-t border-black/10 pt-3 transition-[opacity,transform] duration-600 ease-[cubic-bezier(0.19,1,0.22,1)] ${
                   isInspirationCardOpen ? 'translate-y-0 opacity-100' : 'translate-y-1 opacity-0'
                 }`}
-                style={{ transitionDelay: isInspirationCardOpen ? '1260ms' : '0ms' }}
+                style={{ transitionDelay: isInspirationCardOpen ? '960ms' : '0ms' }}
               >
                 <button
                   ref={inspirationCloseRef}
