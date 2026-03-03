@@ -358,10 +358,10 @@ export default function App() {
           </div>
 
           <div
-            className={`origin-top overflow-hidden transition-[max-height,margin] duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] ${
+            className={`origin-top transition-[max-height,margin] duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] ${
               isInspirationCardOpen
-                ? 'mt-4 max-h-64 delay-360'
-                : 'max-h-0 delay-0'
+                ? 'mt-4 max-h-[24rem] overflow-y-auto pr-1 delay-360'
+                : 'max-h-0 overflow-hidden delay-0'
             }`}
             style={{
               transitionDuration: isInspirationCardOpen ? '620ms' : '620ms',
