@@ -77,10 +77,10 @@ export default function App() {
     : 'cubic-bezier(0.2, 0.75, 0.25, 1)'
   const safeFilename = project.name.replace(/[^a-z0-9]/gi, '-').toLowerCase() || 'facets'
   const isMobile = viewport.width < 768
-  const chartMaxByWidth = isMobile ? viewport.width - 28 : viewport.width - 420
-  const chartMaxByHeight = isMobile ? viewport.height - 230 : viewport.height - 88
+  const chartMaxByWidth = isMobile ? viewport.width - 24 : viewport.width - 420
+  const chartMaxByHeight = isMobile ? viewport.height - 250 : viewport.height - 88
   const chartSize = Math.max(220, Math.min(530, chartMaxByWidth, chartMaxByHeight))
-  const showChartLabels = !isMobile && chartSize >= 320
+  const showChartLabels = chartSize >= (isMobile ? 260 : 320)
 
   function handleSaveSnapshot() {
     const label = snapshotLabel.trim() || `Snapshot ${new Date().toLocaleDateString()}`
@@ -169,7 +169,7 @@ export default function App() {
       <div
         className={`flex justify-center ${
           isMobile
-            ? 'px-3 pb-24 pt-20'
+            ? 'pointer-events-none absolute inset-0 items-center px-2 pb-28 pt-16'
             : 'pointer-events-none absolute inset-0 items-center'
         }`}
       >
@@ -239,22 +239,30 @@ export default function App() {
       )}
 
       {/* Floating toolbar — top right */}
-      <div className="fixed left-3 right-3 top-3 z-20 flex items-center gap-1 rounded-2xl border border-[#e8e6e1] bg-white px-2 py-1.5 shadow-[0_2px_12px_rgba(0,0,0,0.06)] md:left-auto md:right-5 md:top-5">
+      <div
+        className={`fixed z-20 flex items-center gap-1 rounded-2xl border border-[#e8e6e1] bg-white px-2 py-1.5 shadow-[0_2px_12px_rgba(0,0,0,0.06)] ${
+          isMobile
+            ? 'left-1/2 top-3 w-max max-w-[calc(100vw-1.5rem)] -translate-x-1/2'
+            : 'right-5 top-5'
+        }`}
+      >
         <span className="mr-1 truncate border-r border-[#e8e6e1] px-2 text-[11px] font-medium text-[#b0aea8]">
           {project.name}
         </span>
-        <button
-          onClick={() => exportSVG(CHART_SVG_ID, safeFilename)}
-          className="inline-flex min-h-9 items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-[11px] font-medium text-[#888580] transition-colors hover:bg-[#f3f1ec] hover:text-[#1a1917]"
-          aria-label="Export as SVG"
-        >
-          <svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M8 2V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            <path d="M5.5 7.5L8 10.2L10.5 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M3 12.5H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-          <span className="hidden sm:inline">SVG</span>
-        </button>
+        {!isMobile && (
+          <button
+            onClick={() => exportSVG(CHART_SVG_ID, safeFilename)}
+            className="inline-flex min-h-9 items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-[11px] font-medium text-[#888580] transition-colors hover:bg-[#f3f1ec] hover:text-[#1a1917]"
+            aria-label="Export as SVG"
+          >
+            <svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M8 2V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M5.5 7.5L8 10.2L10.5 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M3 12.5H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+            <span className="hidden sm:inline">SVG</span>
+          </button>
+        )}
         <button
           onClick={() => exportPNG(CHART_SVG_ID, safeFilename)}
           className="inline-flex min-h-9 items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-[11px] font-medium text-[#888580] transition-colors hover:bg-[#f3f1ec] hover:text-[#1a1917]"
@@ -265,7 +273,7 @@ export default function App() {
             <path d="M5.5 7.5L8 10.2L10.5 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             <path d="M3 12.5H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
-          <span className="hidden sm:inline">PNG</span>
+          <span className={isMobile ? 'inline' : 'hidden sm:inline'}>PNG</span>
         </button>
         <div className="mx-1 h-4 w-px bg-[#e8e6e1]" />
         <button
@@ -316,26 +324,28 @@ export default function App() {
       )}
 
       {isMobile && (
-        <div className="fixed inset-x-3 bottom-3 z-20 flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              setHistoryOpen(false)
-              setMobileEditorOpen(true)
-            }}
-            className="flex-1 rounded-xl border border-[#e8e6e1] bg-white px-4 py-3 text-xs font-semibold text-[#1a1917] shadow-[0_2px_10px_rgba(0,0,0,0.08)]"
-          >
-            Edit facets
-          </button>
-          <button
-            type="button"
-            onClick={() => setSaveModalOpen(true)}
-            className="rounded-xl px-5 py-3 text-xs font-semibold text-white shadow-[0_2px_10px_rgba(0,0,0,0.12)]"
-            style={{ background: theme.fill }}
-          >
-            Save
-          </button>
-        </div>
+        <>
+          <div className="fixed left-3 bottom-3 z-20 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setHistoryOpen(false)
+                setMobileEditorOpen(true)
+              }}
+              className="rounded-xl border border-[#e8e6e1] bg-white px-5 py-3 text-xs font-semibold text-[#1a1917] shadow-[0_2px_10px_rgba(0,0,0,0.08)]"
+            >
+              Edit facets
+            </button>
+            <button
+              type="button"
+              onClick={() => setSaveModalOpen(true)}
+              className="rounded-xl px-5 py-3 text-xs font-semibold text-white shadow-[0_2px_10px_rgba(0,0,0,0.12)]"
+              style={{ background: theme.fill }}
+            >
+              Save
+            </button>
+          </div>
+        </>
       )}
 
       {/* Save snapshot modal */}
@@ -375,7 +385,7 @@ export default function App() {
       )}
 
       {/* Interface Craft inspiration easter egg */}
-      {!isMobile && isInspirationCardExpanded && (
+      {isInspirationCardExpanded && (
         <button
           type="button"
           onClick={handleCloseInspirationCard}
@@ -384,14 +394,17 @@ export default function App() {
         />
       )}
 
-      {!isMobile && (
       <div
         id={INSPIRATION_CARD_ID}
         aria-label="Inspiration card for this project"
         className={`fixed z-40 overflow-hidden border border-black/10 text-left transition-all duration-450 ease-out ${
           isInspirationCardExpanded
-            ? 'right-1/2 bottom-1/2 w-[min(88vw,380px)] translate-x-1/2 translate-y-1/2 rotate-0 rounded-[30px] p-5 shadow-[0_22px_48px_rgba(0,0,0,0.22)]'
-            : 'right-9 bottom-7 h-64 w-48 -rotate-6 rounded-[24px] p-4 shadow-[0_10px_24px_rgba(0,0,0,0.18)] hover:-translate-y-1 hover:-rotate-3 hover:shadow-[0_16px_32px_rgba(0,0,0,0.2)]'
+            ? isMobile
+              ? 'right-1/2 bottom-1/2 w-[min(92vw,330px)] translate-x-1/2 translate-y-1/2 rotate-0 rounded-[24px] p-4 shadow-[0_20px_42px_rgba(0,0,0,0.24)]'
+              : 'right-1/2 bottom-1/2 w-[min(88vw,380px)] translate-x-1/2 translate-y-1/2 rotate-0 rounded-[30px] p-5 shadow-[0_22px_48px_rgba(0,0,0,0.22)]'
+            : isMobile
+              ? 'right-[-22px] bottom-2 h-44 w-36 -rotate-10 rounded-[20px] p-3 shadow-[0_10px_24px_rgba(0,0,0,0.18)] transition-transform duration-300 ease-out hover:-translate-y-0.5 hover:-rotate-6'
+              : 'right-9 bottom-7 h-64 w-48 -rotate-6 rounded-[24px] p-4 shadow-[0_10px_24px_rgba(0,0,0,0.18)] hover:-translate-y-1 hover:-rotate-3 hover:shadow-[0_16px_32px_rgba(0,0,0,0.2)]'
         }`}
         style={{
           background: theme.fill,
@@ -418,7 +431,7 @@ export default function App() {
         <div className={`relative flex flex-col ${isInspirationCardExpanded ? 'pb-1' : 'h-full'}`}>
           <div
             className={`flex items-center justify-center transition-[height] duration-620 ${
-              isInspirationCardExpanded ? 'h-24' : 'h-14'
+              isInspirationCardExpanded ? (isMobile ? 'h-20' : 'h-24') : (isMobile ? 'h-11' : 'h-14')
             }`}
             style={{
               transitionDuration: isInspirationCardExpanded ? '520ms' : '620ms',
@@ -432,7 +445,7 @@ export default function App() {
               alt=""
               aria-hidden="true"
               className={`object-contain transition-[width,height] duration-620 ${
-                isInspirationCardExpanded ? 'h-full w-full' : 'h-11 w-auto'
+                isInspirationCardExpanded ? 'h-full w-full' : isMobile ? 'h-8 w-auto' : 'h-11 w-auto'
               }`}
               style={{
                 transitionDuration: isInspirationCardExpanded ? '520ms' : '620ms',
@@ -444,13 +457,15 @@ export default function App() {
           </div>
 
           <div className={`space-y-2 ${isInspirationCardOpen ? 'mt-4' : 'mt-3'}`}>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] opacity-85">Inspired by</p>
-            <p className="text-[32px] font-serif leading-[0.95]">
+            <p className={`${isMobile ? 'text-[9px]' : 'text-[10px]'} font-semibold uppercase tracking-[0.14em] opacity-85`}>
+              Inspired by
+            </p>
+            <p className={`${isMobile ? (isInspirationCardOpen ? 'text-[28px]' : 'text-[22px]') : 'text-[32px]'} font-serif leading-[0.95]`}>
               Josh
               <br />
               Puckett
             </p>
-            <p className="text-[15px] font-serif leading-tight opacity-90">
+            <p className={`${isMobile ? (isInspirationCardOpen ? 'text-[14px]' : 'text-[12px]') : 'text-[15px]'} font-serif leading-tight opacity-90`}>
               Interface Craft
             </p>
           </div>
@@ -458,7 +473,7 @@ export default function App() {
           <div
             className={`origin-top transition-[max-height,margin] duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] ${
               isInspirationCardOpen
-                ? 'mt-4 max-h-[24rem] overflow-y-auto pr-1 delay-360'
+                ? 'mt-4 max-h-96 overflow-y-auto pr-1 delay-360'
                 : 'max-h-0 overflow-hidden delay-0'
             }`}
             style={{
@@ -519,7 +534,6 @@ export default function App() {
           </div>
         </div>
       </div>
-      )}
     </div>
   )
 }
