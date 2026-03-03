@@ -7,7 +7,7 @@ import { exportPNG, exportSVG } from './utils/export'
 import { getTheme } from './utils/themes'
 
 const CHART_SVG_ID = 'facets-chart-main'
-const INTERFACE_CRAFT_URL = 'https://www.interfacecraft.com/'
+const INTERFACE_CRAFT_URL = 'https://www.interfacecraft.dev/'
 const INSPIRATION_CARD_ID = 'inspiration-card-panel'
 
 function parseHexColor(hex: string): { r: number; g: number; b: number } | null {
@@ -36,13 +36,6 @@ function getCardTextColor(hex: string): string {
   return luminance > 0.68 ? '#1a1917' : '#f8f7f4'
 }
 
-function toRgba(hex: string, alpha: number): string {
-  const rgb = parseHexColor(hex)
-  if (!rgb) return `rgba(255, 255, 255, ${alpha})`
-
-  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`
-}
-
 export default function App() {
   const {
     project,
@@ -69,7 +62,6 @@ export default function App() {
 
   const theme = getTheme(project.themeId)
   const inspirationCardTextColor = getCardTextColor(theme.fill)
-  const inspirationCardPatternColor = toRgba(inspirationCardTextColor, 0.36)
   const cardTransitionDuration = isInspirationCardOpen ? '450ms' : '820ms'
   const cardTransitionEasing = isInspirationCardOpen
     ? 'cubic-bezier(0.22, 1, 0.36, 1)'
@@ -336,12 +328,29 @@ export default function App() {
 
         <div className={`relative flex flex-col ${isInspirationCardExpanded ? 'pb-1' : 'h-full'}`}>
           <div
-            aria-hidden="true"
-            className="h-24 w-full rounded-xl"
+            className={`flex items-center justify-center transition-[height] duration-620 ${
+              isInspirationCardExpanded ? 'h-24' : 'h-14'
+            }`}
             style={{
-              backgroundImage: `repeating-linear-gradient(93deg, ${inspirationCardPatternColor} 0px, ${inspirationCardPatternColor} 1px, transparent 1px, transparent 6px)`,
+              transitionTimingFunction: isInspirationCardExpanded
+                ? 'cubic-bezier(0.22, 1, 0.36, 1)'
+                : 'cubic-bezier(0.2, 0.75, 0.25, 1)',
             }}
-          />
+          >
+            <img
+              src="/Interface%20Graphic.svg"
+              alt=""
+              aria-hidden="true"
+              className={`object-contain transition-[width,height] duration-620 ${
+                isInspirationCardExpanded ? 'h-full w-full' : 'h-11 w-auto'
+              }`}
+              style={{
+                transitionTimingFunction: isInspirationCardExpanded
+                  ? 'cubic-bezier(0.22, 1, 0.36, 1)'
+                  : 'cubic-bezier(0.2, 0.75, 0.25, 1)',
+              }}
+            />
+          </div>
 
           <div className={`space-y-2 ${isInspirationCardOpen ? 'mt-4' : 'mt-3'}`}>
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] opacity-85">Inspired by</p>
