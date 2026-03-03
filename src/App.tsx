@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useProject } from './hooks/useProject'
 import { FacetsChart } from './components/Chart/FacetsChart'
 import { EditorSidebar } from './components/Editor/EditorSidebar'
@@ -88,7 +88,7 @@ export default function App() {
     setIsInspirationCardOpen(true)
   }
 
-  function handleCloseInspirationCard() {
+  const handleCloseInspirationCard = useCallback(() => {
     if (!isInspirationCardOpen || isInspirationCardClosing) return
 
     setIsInspirationCardOpen(false)
@@ -97,7 +97,7 @@ export default function App() {
       setIsInspirationCardClosing(false)
       inspirationCloseTimerRef.current = null
     }, 380)
-  }
+  }, [isInspirationCardClosing, isInspirationCardOpen])
 
   useEffect(() => {
     return () => {
@@ -120,7 +120,7 @@ export default function App() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isInspirationCardOpen])
+  }, [handleCloseInspirationCard, isInspirationCardOpen])
 
   useEffect(() => {
     if (isInspirationCardOpen && !previousCardOpenRef.current) {

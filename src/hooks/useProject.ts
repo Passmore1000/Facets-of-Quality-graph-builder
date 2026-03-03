@@ -24,7 +24,9 @@ function load(): Project {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) return JSON.parse(raw) as Project
-  } catch {}
+  } catch {
+    // Ignore malformed persisted state and start fresh.
+  }
   return defaultProject()
 }
 

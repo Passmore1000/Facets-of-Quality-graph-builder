@@ -1,7 +1,25 @@
 {
   "name": "facets-of-quality-graph-builder",
-  "private": true,
-  "version": "0.0.0",
+  "private": false,
+  "version": "1.0.0",
+  "description": "A visual editor for building and sharing Facets of Quality charts.",
+  "license": "MIT",
+  "keywords": [
+    "facets-of-quality",
+    "design",
+    "product",
+    "visualization",
+    "react",
+    "vite"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/<your-github-username>/facets-of-quality-graph-builder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/<your-github-username>/facets-of-quality-graph-builder/issues"
+  },
+  "homepage": "https://github.com/<your-github-username>/facets-of-quality-graph-builder#readme",
   "type": "module",
   "scripts": {
     "dev": "vite",
